@@ -32,5 +32,5 @@ workflow.add_edge("generate", END)
 graph = workflow.compile(checkpointer=MemorySaver()) 
 
 # Saving the graph as an image
-with open("images/graph.png", "wb") as f:
-    f.write(graph.get_graph(xray=True).draw_mermaid_png())
+# with open("images/graph.png", "wb") as f:
+#     f.write(graph.get_graph(xray=True).draw_mermaid_png())

@@ -1,3 +1,3 @@
 # FAQ Chatbot
 
-docker build -t ai_faq_ingestion ./src/ingestion
+docker run -p 5000:5000 -v C:/Users/ubfil/OneDrive/Estudo/data-science/faq_chatbot/data/faiss_index:/app/data/faiss_index ai_faq_ingestion
