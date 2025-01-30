@@ -4,8 +4,7 @@ Esse repositório contém um chatbot que responde perguntas sobre a Hotmart. Par
 
 ## Requisitos
  
-- Docker
-- Docker Compose
+- Docker Desktop
 - OpenAI API Key
 
 ## Como rodar
@@ -22,7 +21,7 @@ Esse repositório contém um chatbot que responde perguntas sobre a Hotmart. Par
     docker-compose up --build
     ```
 
-3. Faça a requisição para criar o índice:
+3. Faça a requisição para criar o índice (é possível também utilizar a coleção Postman disponível na pasta `postman`):
 
     ```bash
     curl --location 'http://localhost:5000/criar_index' \
