@@ -34,10 +34,3 @@ graph = workflow.compile(checkpointer=MemorySaver())
 # Saving the graph as an image
 with open("images/graph.png", "wb") as f:
     f.write(graph.get_graph(xray=True).draw_mermaid_png())
-
-if __name__ == "__main__":
-    config = {"configurable": {"thread_id": "1"}}
-    while True:
-        question = input("Usuário: ")
-        response = graph.invoke({"messages": [("user", question)]}, config) # config
-        print("Bot:", response['messages'][-1].content)
