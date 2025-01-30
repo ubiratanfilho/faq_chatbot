@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5001
 
-CMD ["python", "main.py"]
+CMD ["python", "src/interaction/main.py"]

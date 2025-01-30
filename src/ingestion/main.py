@@ -13,14 +13,11 @@ FAISS_PATH = 'data/faiss_index'
 def criar_index():
     data = request.get_json()
     url = data.get('url')
-    openai_api_key = data.get('openai_api_key')
     chunk_size = data.get('chunk_size', 1000)
     chunk_overlap = data.get('chunk_overlap', 200)
 
     if not url:
         return jsonify({"error": "Parâmetro 'url' não fornecido."}), 400
-    if not openai_api_key:
-        return jsonify({"error": "Parâmetro 'openai_api_key' não fornecido."}), 400
 
     # Carrega o conteúdo do site a partir da URL recebida
     loader = WebBaseLoader(
@@ -36,7 +33,7 @@ def criar_index():
     splits = text_splitter.split_documents(docs)
 
     # Cria e salva o vetor FAISS usando a chave fornecida
-    embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+    embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(splits, embeddings)
     vectorstore.save_local(FAISS_PATH)
 
