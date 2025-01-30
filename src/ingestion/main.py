@@ -1,33 +1,46 @@
+from flask import Flask, request, jsonify
 import bs4
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-import json
-import os
-import dotenv
 
-dotenv.load_dotenv()
+app = Flask(__name__)
+
 FAISS_PATH = 'data/faiss_index'
 
-# Check if the FAISS index exists
-if os.path.exists(FAISS_PATH):
-    # Load the existing FAISS index
-    vectorstore = FAISS.load_local(FAISS_PATH, OpenAIEmbeddings(), allow_dangerous_deserialization=True)
-else:
+@app.route('/criar_index', methods=['POST'])
+def criar_index():
+    data = request.get_json()
+    url = data.get('url')
+    openai_api_key = data.get('openai_api_key')
+    chunk_size = data.get('chunk_size', 1000)
+    chunk_overlap = data.get('chunk_overlap', 200)
+
+    if not url:
+        return jsonify({"error": "Parâmetro 'url' não fornecido."}), 400
+    if not openai_api_key:
+        return jsonify({"error": "Parâmetro 'openai_api_key' não fornecido."}), 400
+
+    # Carrega o conteúdo do site a partir da URL recebida
     loader = WebBaseLoader(
-        'https://hotmart.com/pt-br/blog/como-funciona-hotmart',
+        url,
         bs_kwargs=dict(
-            parse_only=bs4.SoupStrainer(
-                class_=("content__body")
-                )
-            ),
+            parse_only=bs4.SoupStrainer(class_="content__body")
+        ),
     )
     docs = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+
+    # Divide o texto em chunks
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     splits = text_splitter.split_documents(docs)
-    
-    # Create a new FAISS index
-    vectorstore = FAISS.from_documents(documents=splits, embedding=OpenAIEmbeddings())
-    # Save the FAISS index for future use
+
+    # Cria e salva o vetor FAISS usando a chave fornecida
+    embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+    vectorstore = FAISS.from_documents(splits, embeddings)
     vectorstore.save_local(FAISS_PATH)
+
+    return jsonify({"message": "FAISS index carregado ou criado com sucesso!", "url": url})
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)

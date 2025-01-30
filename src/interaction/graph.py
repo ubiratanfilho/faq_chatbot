@@ -15,18 +15,13 @@ workflow = StateGraph(MessagesState)
 workflow.add_node("agent", agent)
 retrieve = ToolNode([retriever_tool])
 workflow.add_node("retrieve", retrieve)
-workflow.add_node(
-    "generate", generate
-)
-workflow.add_edge(START, "agent")
+workflow.add_node("generate", generate)
 
-# Decide whether to retrieve
+workflow.add_edge(START, "agent")
 workflow.add_conditional_edges(
     "agent",
-    # Assess agent decision
     tools_condition,
     {
-        # Translate the condition outputs to nodes in our graph
         "tools": "retrieve",
         END: END,
     },
