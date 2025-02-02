@@ -1,32 +1,31 @@
+from typing import List
+
 from langgraph.graph import START, StateGraph, END, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 
-from utils.nodes import agent, generate
-from utils.tools import retriever_tool
+from langchain_core.messages import BaseMessage
 
-### Defining the graph
-workflow = StateGraph(MessagesState)
+from utils.nodes import retriever, assistant
+from .consts import RETRIEVER, ASSISTANT
 
-workflow.add_node("agent", agent)
-retrieve = ToolNode([retriever_tool])
-workflow.add_node("retrieve", retrieve)
-workflow.add_node("generate", generate)
 
-workflow.add_edge(START, "agent")
-workflow.add_conditional_edges(
-    "agent",
-    tools_condition,
-    {
-        "tools": "retrieve",
-        END: END,
-    },
-)
-workflow.add_edge("retrieve", "generate")
-workflow.add_edge("generate", END)
+# States
+class State(MessagesState):
+    question: str
+    context: List[str]
 
-graph = workflow.compile(checkpointer=MemorySaver()) 
+# Graph
+builder = StateGraph(State)
 
-# Saving the graph as an image
-# with open("images/graph.png", "wb") as f:
-#     f.write(graph.get_graph(xray=True).draw_mermaid_png())
+builder.add_node(RETRIEVER, retriever)
+builder.add_node(ASSISTANT, assistant)
+
+builder.add_edge(START, RETRIEVER)
+builder.add_edge(RETRIEVER, ASSISTANT)
+builder.add_edge(ASSISTANT, END)
+
+graph = builder.compile(checkpointer=MemorySaver())
+
+with open("images/graph.png", "wb") as f:
+    f.write(graph.get_graph(xray=True).draw_mermaid_png())
