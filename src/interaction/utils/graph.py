@@ -29,7 +29,7 @@ def conditional_retrieve(state: List[BaseMessage]) -> str:
     return ASSISTANT
 
 builder.add_edge(START, NEED_FOR_RETRIEVAL)
-builder.add_conditional_edges(NEED_FOR_RETRIEVAL, conditional_retrieve)
+builder.add_conditional_edges(NEED_FOR_RETRIEVAL, conditional_retrieve, {RETRIEVER:RETRIEVER, ASSISTANT:ASSISTANT})
 builder.add_edge(RETRIEVER, ASSISTANT)
 builder.add_edge(ASSISTANT, END)
 
