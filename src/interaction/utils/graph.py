@@ -5,10 +5,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from utils.nodes import agent, generate
 from utils.tools import retriever_tool
 
-# import dotenv
-
-# dotenv.load_dotenv()
-
 ### Defining the graph
 workflow = StateGraph(MessagesState)
 

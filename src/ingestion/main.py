@@ -1,13 +1,9 @@
 from flask import Flask, request, jsonify
-import bs4
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
+
+from utils.ingestion import ingest
+from utils.consts import FAISS_PATH
 
 app = Flask(__name__)
-
-FAISS_PATH = 'data/faiss_index'
 
 @app.route('/criar_index', methods=['POST'])
 def criar_index():
@@ -19,23 +15,8 @@ def criar_index():
     if not url:
         return jsonify({"error": "Parâmetro 'url' não fornecido."}), 400
 
-    # Carrega o conteúdo do site a partir da URL recebida
-    loader = WebBaseLoader(
-        url,
-        bs_kwargs=dict(
-            parse_only=bs4.SoupStrainer(class_="content__body")
-        ),
-    )
-    docs = loader.load()
-
-    # Divide o texto em chunks
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    splits = text_splitter.split_documents(docs)
-
-    # Cria e salva o vetor FAISS usando a chave fornecida
-    embeddings = OpenAIEmbeddings()
-    vectorstore = FAISS.from_documents(splits, embeddings)
-    vectorstore.save_local(FAISS_PATH)
+    # Ingest data
+    ingest(url, FAISS_PATH, chunk_size, chunk_overlap)
 
     return jsonify({"message": "FAISS index carregado ou criado com sucesso!", "url": url})
 

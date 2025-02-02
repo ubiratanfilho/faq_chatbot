@@ -3,11 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.tools.retriever import create_retriever_tool
 
-# import dotenv
-
-# dotenv.load_dotenv()
-
-FAISS_PATH = "data/faiss_index"
+from .consts import FAISS_PATH
 
 ### Loading Vector-Store and Retriever Tool
 if os.path.exists(FAISS_PATH):
