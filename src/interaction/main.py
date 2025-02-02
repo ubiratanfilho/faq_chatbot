@@ -15,7 +15,7 @@ def criar_index():
         return jsonify({"error": "Parâmetro 'question' não fornecido."}), 400
 
     config = {"configurable": {"thread_id": thread_id}}
-    response = graph.invoke({"messages": [("user", question)]}, config) # config
+    response = graph.invoke({"messages": [("user", question)], "question": question}, config)
 
     return jsonify({"message": response['messages'][-1].content})
 

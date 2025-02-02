@@ -1,0 +1,1 @@
+FAISS_PATH = "data/faiss_index"

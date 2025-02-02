@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "4782a6d0-952a-498a-8d2c-437d7c4ce8ae",
+		"name": "FAQ_Chatbot",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21355952"
+	},
+	"item": [
+		{
+			"name": "Create Index",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"url\": \"https://hotmart.com/pt-br/blog/como-funciona-hotmart\",\r\n    \"chunk_size\": 1000,\r\n    \"chunk_overlap\": 200\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/criar_index",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"criar_index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ask Question",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"question\": \"Olá\",\r\n    \"thread_id\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/generate_answer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"generate_answer"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
