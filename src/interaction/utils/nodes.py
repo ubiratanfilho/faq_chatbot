@@ -8,7 +8,43 @@ from langchain_community.vectorstores import FAISS
 from langchain.tools.retriever import create_retriever_tool
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+from pydantic import BaseModel, Field
+
 from .consts import FAISS_PATH
+
+class NeedRetrieve(BaseModel):
+    """Boolean flag to indicate if external information is needed"""
+    
+    need_for_context: bool = Field(description="Boolean flag to indicate if external knowledge is needed")
+
+def need_for_retrieve(state):
+    """
+    Node to determine if retrieval is needed for the question or if it can be answered directly.
+    """
+    print("---NEED FOR RETRIEVE---")
+    
+    # Get state
+    messages = state["messages"]
+    
+    # Chain
+    llm = ChatOpenAI(model="gpt-4o-mini")
+    
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "You are a grader that needs to determine if the question can be answered directly or if external knowledge is needed."
+                "ALWAYS return 'True' if the question is related to Hotmart."
+                "If external knowledge is needed, answer 'True'. Otherwise, answer 'False'."
+            ),
+            MessagesPlaceholder(variable_name="messages")
+        ]
+    )
+    chain = prompt | llm.with_structured_output(NeedRetrieve)
+    
+    need_for_context = chain.invoke({"messages": messages}).need_for_context
+    
+    return {"need_for_context": need_for_context}
 
 def retriever(state):
     """
@@ -25,7 +61,7 @@ def retriever(state):
     # Get state
     question = state["question"]
     
-    ### Loading Vector-Store and Retriever Tool
+    # Loading Vector-Store and Retriever Tool
     if os.path.exists(FAISS_PATH):
         # Load the existing FAISS index
         vector_store = FAISS.load_local(FAISS_PATH, OpenAIEmbeddings(), allow_dangerous_deserialization=True)
@@ -53,7 +89,11 @@ def assistant(state):
     
     # Get state
     messages = state["messages"]
-    context = state["context"]
+    need_for_context = state["need_for_context"]
+    if need_for_context:
+        context = state["context"]
+    else:
+        context = []
 
     # Chain
     llm = ChatOpenAI(model="gpt-4o-mini")
